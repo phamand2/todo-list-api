@@ -1,4 +1,4 @@
-fetch('../api/todoList')
+fetch('/api/todoList')
 .then((response)=>{
   return response.json()
 })
