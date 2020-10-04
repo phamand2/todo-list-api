@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const data = await dataFetch()
   createToDoList(data)
   formButton()
-  // deleteTask()
+  deleteTask()
 })
 
 const dataFetch = async () => {

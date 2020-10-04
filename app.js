@@ -91,7 +91,7 @@ app.delete('/api/todoList/:id', (req,res)=>{
 
   if(found){
     // The filter() method creates a new array with all elements that pass the test implemented by the provided function.
-    res.json(data.filter(element => element.id === parseInt(id)))
+    res.json({msg: 'ID deleted', data: data.filter(element => element.id !== parseInt(id))})
   } else {
     res.status(400).json()
   }
