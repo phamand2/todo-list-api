@@ -3,22 +3,84 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const data = require('./data');
 const uuid = require('uuid')
+const methodOverride = require('method-override')
 
 const hostname = '127.0.0.1'; // localhost (our computer)
 const port = 3000; // port to run server on
 
 const app = express();
+app.use(methodOverride('_method'))
+
+const es6Renderer = require('express-es6-template-engine');
+app.engine('html', es6Renderer);
+app.set('views', 'templates');
+app.set('view engine', 'html');
+
 const server = http.createServer(app)
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(express.static('./public'));
+// app.use(express.static('./public'));
 
+
+app.get('/', (req,res) =>{
+  res.render('home', {
+    locals: {
+      title: 'Home',
+      toDoList: data,
+    },
+    partials: {
+      head: 'partials/head'
+
+    }
+  })
+})
 
 // GET /api/todos
 app.get('/api/todoList', (req,res)=>{
- res.json(data)
+  res.render('todo.html', {
+    locals: {
+      title: 'To Do List',
+      toDoList: data,
+    },
+    partials: {
+      head: 'partials/head'
+
+    }
+  })
+})
+
+app.post('/api/todoList', (req,res)=>{
+  if(!req.body.todo) {
+    res.status(422).render('todo', {
+      locals: {
+        toDoList: data,
+        title: 'To Do List'
+      },
+      partials: {
+        head: 'partials/head'
+      }
+    })
+    return
+  }
+  const newToDo = {
+    id: uuid.v4(),
+    todo: req.body.todo,
+    complete: 'false'
+  }
+    
+  data.push(newToDo)
+  
+  res.status(201).render('todo', {
+    locals: {
+      toDoList: data,
+      title: 'To Do List'
+    },
+    partials: {
+      head: 'partials/head'
+    }
+  })
 })
 
 
@@ -54,7 +116,7 @@ app.post('/api/todoList', (req,res)=>{
     todo: req.body.todo,
     complete: 'false'
   }
-  
+    
   data.push(newToDo)
   
   res.status(201).json()
@@ -81,6 +143,19 @@ app.post('/api/todoList', (req,res)=>{
       res.status(400).json({msg: `No task with the id of ${id}`})
     }
   })
+
+
+  app.delete('/api/todoList/:id', (req, res) =>{
+  const { id } = req.params;
+  const found = data.some(element => element.id == parseInt(id));
+
+  if(found){
+    res.status(202).redirect('/api/todoList/')
+  } else {
+    res.status(400).json()
+  }
+
+})
 
 
 

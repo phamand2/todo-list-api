@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const data = await dataFetch()
   createToDoList(data)
   formButton()
-  deleteTask()
+  // deleteTask()
 })
 
 const dataFetch = async () => {
@@ -74,7 +74,7 @@ const formButton = async () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault()
     console.log('Click')
-    axios.post(toDoApi, {
+    axios.post('/api/todoList', {
       todo: e.target.elements.todo.value
     })
       .then(async res => {

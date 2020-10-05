@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  ${head}
+</head>
+
+<body>
+  <div class="container justify-content0-center">
+    <h1 class='text-center'>To Do List:</h1>
+    <nav class="nav nav-tabs nav-stacked">    
+      <a class="nav-link" href="/">Home</a>
+    </nav>
+    <ul class='ul list-group'>
+      ${toDoList.map(todo => `
+      <li class='list-group-item'>
+        ${todo.todo}
+      </li>
+      <form action="/api/todoList/${todo.id}?_method=Delete" method='POST'>
+        <button type='submit'>Delete</button>
+      </form>
+      `).join('')}
+    </ul>
+    <form class='form-group' action="/api/todoList" method="post" id='toDoForm'>
+      <div>
+        <label for="todo"><h3>Add More Task:</h3></label>
+        <input class='form-control' type="text" name='todo' id='todo' required>
+      </div>
+      <input class='btn btn-primary' type="submit" value="Submit">
+
+    </form>
+    </div>
+  </div>
+  
+</body>
+
+</html>
