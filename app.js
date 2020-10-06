@@ -146,16 +146,25 @@ app.post('/api/todoList', (req,res)=>{
 
 
   app.delete('/api/todoList/:id', (req, res) =>{
-  const { id } = req.params;
-  const found = data.some(element => element.id == parseInt(id));
+    const { id } = req.params;
 
-  if(found){
-    res.status(202).redirect('/api/todoList/')
-  } else {
-    res.status(400).json()
-  }
-
-})
+    const todoIndex = data.findIndex(element => {
+      if (element.id == id) {
+        return true;
+      }
+      return false;
+    })
+  
+    if (todoIndex === -1) {
+      // send a 404 status
+      res.status(404).send('Todo not found');
+    } else {
+      // otherwise, delete the object at the index found
+      data.splice(todoIndex, 1);
+      // send a 204 (no content) response
+      res.status(204).redirect('/api/todoList');
+    }
+  })
 
 
 
