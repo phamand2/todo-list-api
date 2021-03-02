@@ -1,9 +1,10 @@
-const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
-const data = require('./data');
+let data = require('./data');
 const uuid = require('uuid')
 const methodOverride = require('method-override')
+
+let nextId = 5
 
 const hostname = '127.0.0.1'; // localhost (our computer)
 const port = 3000; // port to run server on
@@ -16,12 +17,13 @@ app.engine('html', es6Renderer);
 app.set('views', 'templates');
 app.set('view engine', 'html');
 
-const server = http.createServer(app)
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // app.use(express.static('./public'));
+
 
 
 app.get('/', (req,res) =>{
@@ -51,6 +53,9 @@ app.get('/api/todoList', (req,res)=>{
   })
 })
 
+
+
+// Add new todo
 app.post('/api/todoList', (req,res)=>{
   if(!req.body.todo) {
     res.status(422).render('todo', {
@@ -64,12 +69,14 @@ app.post('/api/todoList', (req,res)=>{
     })
     return
   }
+
+
   const newToDo = {
-    id: uuid.v4(),
+    id: nextId++,
     todo: req.body.todo,
     complete: 'false'
   }
-    
+  
   data.push(newToDo)
   
   res.status(201).render('todo', {
@@ -89,12 +96,9 @@ app.post('/api/todoList', (req,res)=>{
 app.get('/api/todoList/:id', (req,res)=>{
   const { id } = req.params;
 
-  const todos = data.find(element => {
-    if(element.id == id){
-      return true
-    }
-    return false
-  })
+  const todos = data.find(element => 
+    element.id === +id
+  )
   
   if (!todos) {
     res.status(404).json({msg: 'No ID exist'})
@@ -104,35 +108,18 @@ app.get('/api/todoList/:id', (req,res)=>{
 })
 
 
-// POST /api/todos
 
-app.post('/api/todoList', (req,res)=>{
-  if(!req.body.todo) {
-    res.status(422).json()
-    return
-  }
-  const newToDo = {
-    id: uuid.v4(),
-    todo: req.body.todo,
-    complete: 'false'
-  }
-    
-  data.push(newToDo)
-  
-  res.status(201).json()
-})
   
   // PUT /api/todos/:id ---> Update ID, todo and/or complete
   app.put('/api/todoList/:id', (req,res)=>{
     const { id } = req.params;
-    // The some() method tests whether at least one element in the array passes the test implemented by the provided function. It returns a Boolean value.
-    const found = data.find(element => element.id === parseInt(id));
+
+    const found = data.find(element => element.id === +id);
     
     if(found){
       const updTask = req.body;
       data.forEach(element => {
-        if(element.id === parseInt(id)){
-          // The conditional (ternary) operator is the only JavaScript operator that takes three operands: a condition followed by a question mark (?), then an expression to execute if the condition is truthy followed by a colon (:), and finally the expression to execute if the condition is falsy
+        if(element.id === +id){
           element.id = updTask.id ? updTask.id : element.id;
           element.todo = updTask.todo ? updTask.todo : element.todo;
           element.complete = updTask.complete ? updTask.complete : element.complete;
@@ -145,37 +132,42 @@ app.post('/api/todoList', (req,res)=>{
   })
 
 
-  app.delete('/api/todoList/:id', (req, res) =>{
-    const { id } = req.params;
+  // app.delete('/api/todoList/:id', (req, res) =>{
+  //   const { id } = req.params;
 
-    const todoIndex = data.findIndex(element => {
-      if (element.id == id) {
-        return true;
-      }
-      return false;
-    })
+  //   const todoIndex = data.findIndex(element => {
+  //     if (element.id === +id) {
+  //       return true;
+  //     }
+  //     return false;
+  //   })
+
+  //   console.log(todoIndex)
   
-    if (todoIndex === -1) {
-      // send a 404 status
-      res.status(404).send('Todo not found');
-    } else {
-      // otherwise, delete the object at the index found
-      data.splice(todoIndex, 1);
-      // send a 204 (no content) response
-      res.status(204).redirect('/api/todoList');
-    }
-  })
+  //   if (todoIndex === -1) {
+  //     // send a 404 status
+  //     res.status(404).send('Todo not found');
+  //   } else {
+  //     // otherwise, delete the object at the index found
+  //     data.splice(todoIndex, 1);
+  //     // send a 204 (no content) response
+  //     res.status(204).redirect('/api/todoList');
+  //   }
+  // })
 
 
 
 // DELETE /api/todos/:id
 app.delete('/api/todoList/:id', (req,res)=>{
   const { id } = req.params;
-  const found = data.some(element => element.id === parseInt(id));
+  const found = data.find(element => element.id === +id);
+  console.log(found)
 
   if(found){
-    // The filter() method creates a new array with all elements that pass the test implemented by the provided function.
-    res.json({msg: 'ID deleted', data: data.filter(element => element.id !== parseInt(id))})
+    let updatedList = data.filter(element => element.id !== found.id);
+    data = updatedList
+    console.log(data)
+    res.redirect('/api/todoList')
   } else {
     res.status(400).json()
   }
@@ -183,7 +175,7 @@ app.delete('/api/todoList/:id', (req,res)=>{
 })
 
 
-server.listen(port, hostname, () => {
+app.listen(port, hostname, () => {
   // once server is listening, log to the console to say so
   console.log(`Server running at http://${hostname}:${port}/`);
 });

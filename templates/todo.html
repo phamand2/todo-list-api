@@ -13,24 +13,24 @@
     </nav>
     <ul class='ul list-group'>
       ${toDoList.map(todo => `
-      <li class='list-group-item'>
+      <li class='list-group-item d-flex justify-content-between'>
         ${todo.todo}
+        <form action="/api/todoList/${todo.id}?_method=Delete" method='POST'>
+          <button class='btn btn-danger' id='delete' type='submit'>Delete</button>
+        </form>
+        `).join('')}
       </li>
-      <form action="/api/todoList/${todo.id}?_method=Delete" method='POST'>
-        <button type='submit'>Delete</button>
-      </form>
-      `).join('')}
     </ul>
     <form class='form-group' action="/api/todoList" method="post" id='toDoForm'>
       <div>
         <label for="todo"><h3>Add More Task:</h3></label>
-        <input class='form-control' type="text" name='todo' id='todo' required>
+        <input class='form-control' type="text" name='todo' required>
+        <input class='btn btn-primary' type="submit" value="Submit">
       </div>
-      <input class='btn btn-primary' type="submit" value="Submit">
 
     </form>
-    </div>
   </div>
+</div>
   
 </body>
 
